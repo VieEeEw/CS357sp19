@@ -1,8 +1,10 @@
 import numpy as np
 from scipy.signal import convolve2d
 from matplotlib import colors
+import matplotlib
 import matplotlib.pyplot as plt
-from math import floor,sqrt
+from math import floor, sqrt
+
 
 def create_kernel(rmin, nelx, nely):
     N = 2 * floor(rmin) + 1
@@ -19,11 +21,13 @@ def create_kernel(rmin, nelx, nely):
 
 def filter_design_variable(xvec, H, H1):
     x = xvec.reshape(H1.shape)
-
     xf = convolve2d(x, H, mode='same') / H1
-    return xf.reshape(xvec.shape)
+    xf = xf.reshape(xvec.shape)
+    return xf
 
 
 H, H1 = create_kernel(2.5, nelx, nely)
-xf = filter_design_variable(xvec, H, H1)
-image_plot = plt.imshow(-xf.reshape((nelx, nely)).T, cmap='gray', vmin=0, vmax=250)
+xfilt = filter_design_variable(xvec, H, H1)
+image = -xfilt.reshape((nelx, nely)).T
+image_plot = plt.imshow(image, cmap='gray', vmin=0, vmax=250)
+matplotlib.pyplot.imshow(image, cmap='gray', interpolation='none', norm=colors.Normalize(vmin=-1, vmax=0))
