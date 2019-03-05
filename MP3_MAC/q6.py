@@ -15,11 +15,14 @@ def my_lu(A: np.ndarray) -> np.ndarray:
     # Do NOT use `scipy.linalg.lu`!
     # You should not use pivoting
 
-    M = A.copy()
-    for i in range(len(A)):
-        M[i + 1:, i] = M[i + 1:, i] / M[i, i]
-        M[i + 1:, i + 1:] -= np.outer(M[i + 1:i], M[i, i + 1:])
-    return M
+    n = len(A)
+    for k in range(0, n - 1):
+        for i in range(k + 1, n):
+            if A[i, k] != 0.0:
+                temp = A[i, k] / A[k, k]
+                A[i, k + 1:n] = A[i, k + 1:n] - temp * A[k, k + 1:n]
+                A[i, k] = temp
+    return A
 
 
 def my_triangular_solve(M: np.ndarray, b: np.ndarray) -> np.ndarray:
@@ -75,7 +78,7 @@ def partition_stiffness_matrix(K, equation_numbers, nk):
 def fea_solve(Kpp, Kpf, Kfp, Kff, xp, Ff):
     # Use my_lu and my_triangular_solve
     RHS1 = Ff - np.matmul(Kfp, xp)
-    M = my_lu(Kff, RHS1)
+    M = my_lu(Kff)
     xf = my_triangular_solve(M, RHS1)
     Fp = np.matmul(Kpp, xp) + np.matmul(Kpf, xf)
     return xf, Fp
